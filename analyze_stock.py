@@ -257,6 +257,12 @@ for _, row in df.iterrows():
 html += """
 </tbody>
 </table>
+<div style="max-width:600px;margin:40px auto;text-align:center;">
+  <h2 style="margin-bottom:10px;">💰 投資金額分配模擬</h2>
+  <input type="number" id="allocationInput" placeholder="請輸入總投資金額（元）" style="font-size:1.2rem;padding:10px;width:80%;max-width:400px;">
+  <button id="allocateBtn" style="font-size:1.2rem;padding:10px 20px;margin-top:10px;">分配金額</button>
+  <div id="allocationResult" style="margin-top:30px;text-align:left;"></div>
+</div>
 
 <footer>
   <p>報告由 ChatGPT 根據使用者提供資料自動生成</p>
@@ -443,6 +449,48 @@ $(document).ready(function() {
       { targets: [3,4,5,6,7,9,10], className: 'dt-center' }
     ]
   });
+});
+
+document.getElementById('allocateBtn').addEventListener('click', () => {
+  const totalAmount = parseFloat(document.getElementById('allocationInput').value);
+  const resultBox = document.getElementById('allocationResult');
+  resultBox.innerHTML = '';
+
+  if (isNaN(totalAmount) || totalAmount <= 0) {
+    resultBox.innerHTML = '<p style="color:red;">請輸入有效的投資金額</p>';
+    return;
+  }
+
+  // 篩選正報酬的項目
+  const positiveItems = [];
+  let sumProfitRate = 0;
+  for (let i = 0; i < labels.length; i++) {
+    const rate = profitRates[i];
+    if (rate > 0) {
+      positiveItems.push({ name: labels[i], rate });
+      sumProfitRate += rate;
+    }
+  }
+
+  if (positiveItems.length === 0) {
+    resultBox.innerHTML = '<p style="color:red;">目前沒有報酬率為正的項目</p>';
+    return;
+  }
+
+  // 按比例分配金額
+  const allocations = positiveItems.map(item => {
+    const allocated = totalAmount * (item.rate / sumProfitRate);
+    return { ...item, allocated };
+  });
+
+  // 顯示結果
+  let html = '<table style="width:100%;border-collapse:collapse;margin-top:10px;">';
+  html += '<tr style="background-color:#3f51b5;color:white;"><th style="padding:10px;">商品</th><th style="padding:10px;">損益率</th><th style="padding:10px;">分配金額</th></tr>';
+  allocations.forEach(item => {
+    html += `<tr style="text-align:center;"><td style="padding:8px;">${item.name}</td><td style="padding:8px;">${item.rate.toFixed(2)}%</td><td style="padding:8px;">${Math.round(item.allocated).toLocaleString()} 元</td></tr>`;
+  });
+  html += '</table>';
+  resultBox.innerHTML = html;
 });
 </script>
 
