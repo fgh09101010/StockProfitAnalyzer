@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<title>投資損益分析報告</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+
+<style>
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: linear-gradient(135deg, #f0f4ff, #d9e4ff);
+    color: #1a237e;
+    margin: 20px;
+    font-size: 18px;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 3rem;
+  }
+  .cards {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+  }
+  .card {
+    background: white;
+    box-shadow: 0 4px 12px rgba(26,35,126,.15);
+    border-radius: 12px;
+    padding: 25px 40px;
+    min-width: 200px;
+    text-align: center;
+  }
+  .card h2 {
+    margin: 0 0 10px;
+    font-size: 3rem;
+    color: #0d47a1;
+  }
+  .card p {
+    margin: 0;
+    font-size: 1.3rem;
+    color: #3949ab;
+    font-weight: 600;
+  }
+  
+  #charts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 40px;
+    min-height: 520px;
+  }
+  canvas {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(26,35,126,.1);
+  padding: 20px;
+  width: 100% !important;   /* 寬度改成100%，隨父容器寬度縮放 */
+  height: auto !important;  /* 高度自動調整或用比例 */
+
+  aspect-ratio: 16 / 9;     /* 維持寬高比 */
+  }
+  table.dataTable {
+    border-collapse: collapse !important;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(26,35,126,.15);
+    overflow: hidden;
+  }
+  table.dataTable thead th {
+    background-color: #283593 !important;
+    color: white !important;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  table.dataTable tbody tr:hover {
+    background-color: #e3eafc !important;
+  }
+  table.dataTable tbody td {
+    text-align: center;
+    font-size: 1rem;
+  }
+  .negative {
+    color: #e53935;
+    font-weight: 700;
+  }
+  .positive {
+    color: #43a047;
+    font-weight: 700;
+  }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    color: #666;
+    font-size: 14px;
+  }
+</style>
+
+</head>
+<body>
+
+<h1>投資損益分析報告</h1>
+<p style="text-align:center; color:#666; font-size:14px; margin-top:-10px; margin-bottom:30px;">
+  資料日期：2025年07月24日
+</p>
+<div class="cards">
+  <div class="card">
+    <h2>509,254 元</h2>
+    <p>總投資成本</p>
+  </div>
+  <div class="card">
+    <h2>561,619 元</h2>
+    <p>總市值</p>
+  </div>
+  <div class="card">
+    <h2>49,305 元</h2>
+    <p>帳面損益</p>
+  </div>
+  <div class="card">
+    <h2>9.68%</h2>
+    <p>整體損益率</p>
+  </div>
+</div>
+
+<div id="charts">
+  <canvas id="barChart"></canvas>
+  <canvas id="bubbleChart"></canvas>
+  <canvas id="pieChart"></canvas>
+</div>
+
+<table id="detailTable" class="display" style="width:100%">
+<thead>
+  <tr>
+    <th>項次</th>
+    <th>商品名稱</th>
+    <th>類別</th>
+    <th>股數</th>
+    <th>成本價</th>
+    <th>投資成本</th>
+    <th>帳面收入</th>
+    <th>損益</th>
+    <th>損益率</th>
+    <th>現價</th>
+    <th>市值</th>
+    <th>幣別</th>
+  </tr>
+</thead>
+<tbody>
+
+    <tr>
+      <td>1</td>
+      <td>0050 元大台灣50</td>
+      <td>現股</td>
+      <td>168.0</td>
+      <td>43.94</td>
+      <td>7,387 元</td>
+      <td>8,520 元</td>
+      <td>1,133 元</td>
+      <td class="positive">15.3%</td>
+      <td>51.0</td>
+      <td>8,568 元</td>
+      <td>台幣</td>
+    </tr>
+    
+    <tr>
+      <td>2</td>
+      <td>1229 聯華</td>
+      <td>現股</td>
+      <td>58.0</td>
+      <td>53.19</td>
+      <td>3,087 元</td>
+      <td>2,571 元</td>
+      <td>-516 元</td>
+      <td class="negative">-16.7%</td>
+      <td>44.8</td>
+      <td>2,598 元</td>
+      <td>台幣</td>
+    </tr>
+    
+    <tr>
+      <td>3</td>
+      <td>1231 聯華食</td>
+      <td>現股</td>
+      <td>33.0</td>
+      <td>155.09</td>
+      <td>5,121 元</td>
+      <td>4,583 元</td>
+      <td>-538 元</td>
+      <td class="negative">-10.5%</td>
+      <td>140.5</td>
+      <td>4,636 元</td>
+      <td>台幣</td>
+    </tr>
+    
+    <tr>
+      <td>4</td>
+      <td>1294 漢田生技</td>
+      <td>現股</td>
+      <td>31.0</td>
+      <td>92.94</td>
+      <td>2,883 元</td>
+      <td>2,305 元</td>
+      <td>-578 元</td>
+      <td class="negative">-20.0%</td>
+      <td>75.2</td>
+      <td>2,331 元</td>
+      <td>台幣</td>
+    </tr>
+    
+    <tr>
+      <td>5</td>
+      <td>2330 台積電</td>
+      <td>現股</td>
+      <td>120.0</td>
+      <td>988.63</td>
+      <td>118,735 元</td>
+      <td>136,744 元</td>
+      <td>18,009 元</td>
+      <td class="positive">15.2%</td>
+      <td>1145.0</td>
+      <td>137,400 元</td>
+      <td>台幣</td>
+    </tr>
+    
+    <tr>
+      <td>6</td>
+      <td>2364 倫　飛</td>
+      <td>現股</td>
+      <td>40.0</td>
+      <td>79.6</td>
+      <td>3,186 元</td>
+      <td>3,825 元</td>
+      <td>639 元</td>
+      <td class="positive">20.1%</td>
+      <td>96.4</td>
+      <td>3,856 元</td>
+      <td>台幣</td>
+    </tr>
+    
+    <tr>
+      <td>7</td>
+      <td>2539 櫻花建</td>
+      <td>現股</td>
+      <td>3652.0</td>
+      <td>54.35</td>
+      <td>198,650 元</td>
+      <td>239,499 元</td>
+      <td>40,849 元</td>
+      <td class="positive">20.6%</td>
+      <td>65.9</td>
+      <td>240,667 元</td>
+      <td>台幣</td>
+    </tr>
+    
+    <tr>
+      <td>8</td>
+      <td>2540 愛山林</td>
+      <td>現股</td>
+      <td>661.0</td>
+      <td>91.45</td>
+      <td>60,493 元</td>
+      <td>51,516 元</td>
+      <td>-8,977 元</td>
+      <td class="negative">-14.8%</td>
+      <td>78.5</td>
+      <td>51,888 元</td>
+      <td>台幣</td>
+    </tr>
+    
+    <tr>
+      <td>9</td>
+      <td>2542 興富發</td>
+      <td>現股</td>
+      <td>65.0</td>
+      <td>45.49</td>
+      <td>2,959 元</td>
+      <td>2,698 元</td>
+      <td>-261 元</td>
+      <td class="negative">-8.8%</td>
+      <td>41.95</td>
+      <td>2,727 元</td>
+      <td>台幣</td>
+    </tr>
+    
+    <tr>
+      <td>10</td>
+      <td>2881 富邦金</td>
+      <td>現股</td>
+      <td>485.0</td>
+      <td>86.58</td>
+      <td>42,026 元</td>
+      <td>40,368 元</td>
+      <td>-1,658 元</td>
+      <td class="negative">-3.9%</td>
+      <td>83.6</td>
+      <td>40,546 元</td>
+      <td>台幣</td>
+    </tr>
+    
+    <tr>
+      <td>11</td>
+      <td>2885 元大金</td>
+      <td>現股</td>
+      <td>945.0</td>
+      <td>30.67</td>
+      <td>29,006 元</td>
+      <td>30,142 元</td>
+      <td>1,136 元</td>
+      <td class="positive">3.9%</td>
+      <td>32.05</td>
+      <td>30,287 元</td>
+      <td>台幣</td>
+    </tr>
+    
+    <tr>
+      <td>12</td>
+      <td>4104 佳　醫</td>
+      <td>現股</td>
+      <td>70.0</td>
+      <td>86.6</td>
+      <td>6,067 元</td>
+      <td>5,864 元</td>
+      <td>-203 元</td>
+      <td class="negative">-3.3%</td>
+      <td>84.3</td>
+      <td>5,901 元</td>
+      <td>台幣</td>
+    </tr>
+    
+    <tr>
+      <td>13</td>
+      <td>4114 健　喬</td>
+      <td>現股</td>
+      <td>183.0</td>
+      <td>29.09</td>
+      <td>5,328 元</td>
+      <td>6,737 元</td>
+      <td>1,409 元</td>
+      <td class="positive">26.4%</td>
+      <td>37.15</td>
+      <td>6,798 元</td>
+      <td>台幣</td>
+    </tr>
+    
+    <tr>
+      <td>14</td>
+      <td>6221 晉　泰</td>
+      <td>現股</td>
+      <td>46.0</td>
+      <td>65.89</td>
+      <td>3,033 元</td>
+      <td>2,161 元</td>
+      <td>-872 元</td>
+      <td class="negative">-28.8%</td>
+      <td>47.55</td>
+      <td>2,187 元</td>
+      <td>台幣</td>
+    </tr>
+    
+    <tr>
+      <td>15</td>
+      <td>6469 大　樹</td>
+      <td>現股</td>
+      <td>36.0</td>
+      <td>165.5</td>
+      <td>5,962 元</td>
+      <td>5,648 元</td>
+      <td>-314 元</td>
+      <td class="negative">-5.3%</td>
+      <td>158.5</td>
+      <td>5,706 元</td>
+      <td>台幣</td>
+    </tr>
+    
+    <tr>
+      <td>16</td>
+      <td>6472 保瑞</td>
+      <td>現股</td>
+      <td>9.0</td>
+      <td>741.11</td>
+      <td>6,675 元</td>
+      <td>7,373 元</td>
+      <td>698 元</td>
+      <td class="positive">10.5%</td>
+      <td>826.0</td>
+      <td>7,434 元</td>
+      <td>台幣</td>
+    </tr>
+    
+    <tr>
+      <td>17</td>
+      <td>6752 叡揚資訊</td>
+      <td>現股</td>
+      <td>16.0</td>
+      <td>146.5</td>
+      <td>2,346 元</td>
+      <td>2,206 元</td>
+      <td>-140 元</td>
+      <td class="negative">-6.0%</td>
+      <td>139.5</td>
+      <td>2,232 元</td>
+      <td>台幣</td>
+    </tr>
+    
+    <tr>
+      <td>18</td>
+      <td>6873 泓德能源</td>
+      <td>現股</td>
+      <td>13.0</td>
+      <td>240.46</td>
+      <td>3,128 元</td>
+      <td>2,741 元</td>
+      <td>-387 元</td>
+      <td class="negative">-12.4%</td>
+      <td>213.0</td>
+      <td>2,769 元</td>
+      <td>台幣</td>
+    </tr>
+    
+    <tr>
+      <td>19</td>
+      <td>6898 程曦資訊</td>
+      <td>現股</td>
+      <td>25.0</td>
+      <td>126.48</td>
+      <td>3,182 元</td>
+      <td>3,058 元</td>
+      <td>-124 元</td>
+      <td class="negative">-3.9%</td>
+      <td>123.5</td>
+      <td>3,088 元</td>
+      <td>台幣</td>
+    </tr>
+    
+</tbody>
+</table>
+
+<footer>
+  <p>報告由 ChatGPT 根據使用者提供資料自動生成</p>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const labels = ["0050 \u5143\u5927\u53f0\u706350", "1229 \u806f\u83ef", "1231 \u806f\u83ef\u98df", "1294 \u6f22\u7530\u751f\u6280", "2330 \u53f0\u7a4d\u96fb", "2364 \u502b\u3000\u98db", "2539 \u6afb\u82b1\u5efa", "2540 \u611b\u5c71\u6797", "2542 \u8208\u5bcc\u767c", "2881 \u5bcc\u90a6\u91d1", "2885 \u5143\u5927\u91d1", "4104 \u4f73\u3000\u91ab", "4114 \u5065\u3000\u55ac", "6221 \u6649\u3000\u6cf0", "6469 \u5927\u3000\u6a39", "6472 \u4fdd\u745e", "6752 \u53e1\u63da\u8cc7\u8a0a", "6873 \u6cd3\u5fb7\u80fd\u6e90", "6898 \u7a0b\u66e6\u8cc7\u8a0a"];
+const investmentCosts = [7387.0, 3087.0, 5121.0, 2883.0, 118735.0, 3186.0, 198650.0, 60493.0, 2959.0, 42026.0, 29006.0, 6067.0, 5328.0, 3033.0, 5962.0, 6675.0, 2346.0, 3128.0, 3182.0];
+const marketValues = [8568.0, 2598.0, 4636.0, 2331.0, 137400.0, 3856.0, 240667.0, 51888.0, 2727.0, 40546.0, 30287.0, 5901.0, 6798.0, 2187.0, 5706.0, 7434.0, 2232.0, 2769.0, 3088.0];
+const profitRates = [15.3, -16.7, -10.5, -20.0, 15.2, 20.1, 20.6, -14.8, -8.8, -3.9, 3.9, -3.3, 26.4, -28.8, -5.3, 10.5, -6.0, -12.4, -3.9];
+const shares = [168.0, 58.0, 33.0, 31.0, 120.0, 40.0, 3652.0, 661.0, 65.0, 485.0, 945.0, 70.0, 183.0, 46.0, 36.0, 9.0, 16.0, 13.0, 25.0];
+const costByCategory = {"\u5927\u5e45\u7372\u5229 \u226520%": 207164.0, "\u5c0f\u5e45\u8667\u640d -10%~0": 62542.0, "\u7372\u5229 0~20%": 161803.0, "\u91cd\u5ea6\u8667\u640d < -10%": 77745.0};
+
+// Bar Chart: 市值與投資成本比較
+new Chart(document.getElementById('barChart').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: labels,
+    datasets: [
+      {
+        label: '投資成本',
+        data: investmentCosts,
+        backgroundColor: 'rgba(26, 35, 126, 0.7)'
+      },
+      {
+        label: '市值',
+        data: marketValues,
+        backgroundColor: 'rgba(67, 160, 71, 0.7)'
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          font: { size: 22 },
+          callback: value => value.toLocaleString() + ' 元'
+        },
+        title: {
+          display: true,
+          text: '金額 (元)',
+          font: { size: 24 }
+        }
+      },
+      x: {
+        ticks: {
+          maxRotation: 90,
+          minRotation: 45,
+          autoSkip: false,
+          font: { size: 20 }
+        }
+      }
+    },
+    plugins: {
+      legend: { labels: { font: { size: 20 }, padding: 20 } },
+      tooltip: {
+        bodyFont: { size: 20 },
+        titleFont: { size: 22 },
+        padding: 16,
+        callbacks: {
+          label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toLocaleString() + ' 元'
+        }
+      }
+    }
+  }
+});
+
+// Bubble Chart: 投入成本與損益率關係，股數作為氣泡大小
+new Chart(document.getElementById('bubbleChart').getContext('2d'), {
+  type: 'bubble',
+  data: {
+    labels: labels,
+    datasets: [{
+      label: '投入成本 vs 損益率',
+      data: labels.map((label, i) => {
+        return {
+          x: investmentCosts[i],
+          y: profitRates[i],
+          r: Math.sqrt(Number(shares[i]) || 1) * 2
+        };
+      }),
+      backgroundColor: 'rgba(30, 136, 229, 0.7)'
+    }]
+  },
+  options: {
+    responsive: true,
+
+    scales: {
+      x: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: '投入成本 (元)',
+          font: { size: 24 }
+        },
+        ticks: {
+          font: { size: 20 },
+          callback: val => val.toLocaleString()
+        }
+      },
+      y: {
+        beginAtZero: false,
+        title: {
+          display: true,
+          text: '損益率 (%)',
+          font: { size: 24 }
+        },
+        ticks: {
+          font: { size: 20 },
+          callback: val => val + '%'
+        }
+      }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx =>
+            labels[ctx.dataIndex] + ': 投入成本 ' + ctx.parsed.x.toLocaleString() + ' 元, 損益率 ' + ctx.parsed.y.toFixed(2) + '%, 股數 ' + shares[ctx.dataIndex]
+        },
+        bodyFont: { size: 20 },
+        titleFont: { size: 22 },
+        padding: 16
+      }
+    }
+  }
+});
+
+// Pie Chart: 各損益區間投入成本比例
+new Chart(document.getElementById('pieChart').getContext('2d'), {
+  type: 'pie',
+  data: {
+    labels: Object.keys(costByCategory),
+    datasets: [{
+      data: Object.values(costByCategory),
+      backgroundColor: ['#1e88e5', '#42a5f5', '#90caf9', '#c5cae9']
+    }]
+  },
+  options: {
+    responsive: true,
+
+    plugins: {
+      legend: {
+        position: 'right',
+        labels: {
+          boxWidth: 20,
+          padding: 15,
+          font: { size: 20 }
+        }
+      },
+      tooltip: {
+        bodyFont: { size: 20 },
+        titleFont: { size: 22 },
+        padding: 16
+      }
+    }
+  }
+});
+
+$(document).ready(function() {
+  $('#detailTable').DataTable({
+    pageLength: 10,
+    lengthMenu: [5,10,20,50],
+    language: {
+      search: "搜尋：",
+      lengthMenu: "顯示 _MENU_ 筆",
+      info: "顯示第 _START_ 筆到 _END_ 筆，共 _TOTAL_ 筆",
+      paginate: {
+        first: "第一頁",
+        last: "最後一頁",
+        next: "下一頁",
+        previous: "上一頁"
+      },
+      zeroRecords: "找不到符合的資料"
+    },
+    columnDefs: [
+      { targets: [3,4,5,6,7,9,10], className: 'dt-center' }
+    ]
+  });
+});
+</script>
+
+</body>
+</html>
