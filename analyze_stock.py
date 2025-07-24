@@ -14,7 +14,7 @@ data_date = datetime.datetime.fromtimestamp(timestamp)
 
 # 格式化成中文日期字串，例如：2025年07月24日
 data_date_str = data_date.strftime('%Y年%m月%d日')
-
+run_time_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 # 去除不要的欄位
 drop_cols = ['試算價', '試算損益']
 for col in drop_cols:
@@ -186,6 +186,9 @@ html = f"""<!DOCTYPE html>
 <h1>投資損益分析報告</h1>
 <p style="text-align:center; color:#666; font-size:14px; margin-top:-10px; margin-bottom:30px;">
   資料日期：{data_date_str}
+</p>
+<p style="text-align:center; color:#666; font-size:14px; margin-top:-10px; margin-bottom:30px;">
+  程式執行時間：{run_time_str}
 </p>
 <div class="cards">
   <div class="card">
