@@ -451,7 +451,7 @@ $(document).ready(function() {
 """
 
 # 寫出 HTML 檔案
-with open("投資損益分析報告.html", "w", encoding="utf-8") as f:
+with open("docs/投資損益分析報告.html", "w", encoding="utf-8") as f:
     f.write(html)
 
 print("已生成 投資損益分析報告.html")

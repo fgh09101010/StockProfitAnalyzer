@@ -2,8 +2,7 @@ name: Generate Investment Report
 
 on:
   schedule:
-    # 每天凌晨1點跑（UTC時間），可自行調整
-    - cron: '0 17 * * *'
+    - cron: '0 17 * * *'  # 台灣時間凌晨1點（UTC+8）
   workflow_dispatch:
 
 jobs:
@@ -14,7 +13,7 @@ jobs:
     - name: Checkout Repo
       uses: actions/checkout@v3
 
-    - name: Set up Python 3.10
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
@@ -24,14 +23,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run analyze_stock.py to generate report
+    - name: Run script to generate report
       run: python analyze_stock.py
 
-    - name: Commit and push report
+    - name: Commit and Push report
       run: |
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
-        git add 投資損益分析報告.html
-        git commit -m "自動更新投資損益分析報告 $(date)"
+        git add docs/投資損益分析報告.html
+        git commit -m "Auto-update report $(date '+%Y-%m-%d %H:%M:%S')"
         git push
       continue-on-error: true
