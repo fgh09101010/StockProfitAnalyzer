@@ -1,9 +1,11 @@
 name: Generate Investment Report
 
 on:
+  push:
+    branches: [ main ]          # ✅ 當 main 分支有 push 時觸發
   schedule:
-    - cron: '0 17 * * *'  # 台灣時間凌晨1點（UTC+8）
-  workflow_dispatch:
+    - cron: '0 17 * * *'        # ✅ 每天台灣凌晨 1 點執行（UTC+8）
+  workflow_dispatch:            # ✅ 手動觸發
 
 jobs:
   generate_report:
@@ -30,7 +32,7 @@ jobs:
       run: |
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
-        git add docs/投資損益分析報告.html
-        git commit -m "Auto-update report $(date '+%Y-%m-%d %H:%M:%S')"
+        git add docs/投資損益分析報告.html || echo "No changes"
+        git commit -m "Auto-update report $(date '+%Y-%m-%d %H:%M:%S')" || echo "Nothing to commit"
         git push
       continue-on-error: true
