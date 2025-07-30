@@ -5,6 +5,36 @@ import datetime
 
 # 讀取 Excel
 file_path = "未實現損益試算.xlsx"
+meta_path = "file_metadata.json"
+
+# 讀取 Excel
+df = pd.read_excel(file_path, engine='openpyxl')
+
+# 初始化 metadata 檔案
+if os.path.exists(meta_path):
+    with open(meta_path, "r", encoding="utf-8") as f:
+        metadata = json.load(f)
+else:
+    metadata = {}
+
+# 如果 metadata 裡已經有紀錄，就使用紀錄的日期
+if file_path in metadata:
+    data_date = datetime.datetime.fromisoformat(metadata[file_path])
+else:
+    # 第一次處理：從 Excel 中擷取日期（推薦方式）
+    if "日期" in df.columns:
+        data_date = pd.to_datetime(df['日期']).max()
+    else:
+        # fallback：使用檔案修改時間
+        timestamp = os.path.getmtime(file_path)
+        data_date = datetime.datetime.fromtimestamp(timestamp)
+
+    # 儲存到 metadata
+    metadata[file_path] = data_date.isoformat()
+    with open(meta_path, "w", encoding="utf-8") as f:
+        json.dump(metadata, f, ensure_ascii=False, indent=2)
+
+print("資料日期：", data_date)
 df = pd.read_excel(file_path, engine='openpyxl')
 
 timestamp = os.path.getmtime(file_path)
