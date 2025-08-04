@@ -3,6 +3,10 @@
 ## 在線預覽
 - 報告範例：[投資損益分析報告](https://fgh09101010.github.io/my-stock/%E6%8A%95%E8%B3%87%E6%90%8D%E7%9B%8A%E5%88%86%E6%9E%90%E5%A0%B1%E5%91%8A.html)
 
+## 投資損益報告 (Markdown 格式)
+
+完整報告請參考 [investment_report.md](./investment_report.md)。
+
 ## 專案概述
 本專案是一個 Python 程式，用於讀取 Excel 檔案中的投資數據，生成視覺化的投資損益分析報告。報告以 HTML 格式呈現，包含互動式圖表、數據表格及投資金額分配模擬功能，幫助使用者快速了解投資組合表現。
 

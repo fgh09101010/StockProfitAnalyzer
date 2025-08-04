@@ -2,6 +2,8 @@ import pandas as pd
 import json
 import os
 import datetime
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
 
 # 讀取 Excel
 file_path = "未實現損益試算.xlsx"
@@ -77,16 +79,20 @@ investment_costs = df['投資成本_數值'].tolist()
 market_values = df['市值_數值'].tolist()
 shares = df['股數'].tolist()
 
-# 損益區間分類函數，用於圓餅圖
 def profit_category(pct):
     if pct >= 20:
-        return "大幅獲利 ≥20%"
-    elif pct >= 0:
-        return "獲利 0~20%"
-    elif pct >= -10:
-        return "小幅虧損 -10%~0"
+        return "大幅獲利 >= 20%"
+    elif 10 <= pct < 20:
+        return "中度獲利 10~20%"
+    elif 0 <= pct < 10:
+        return "小幅獲利 0~10%"
+    elif -10 <= pct < 0:
+        return "小幅虧損 -10~0%"
+    elif -20 <= pct < -10:
+        return "中度虧損 -20~-10%"
     else:
-        return "重度虧損 < -10%"
+        return "重度虧損 < -20%"
+
 
 df['損益區間'] = df['損益率'].apply(profit_category)
 cost_by_category = df.groupby('損益區間')['投資成本_數值'].sum().to_dict()
@@ -104,6 +110,70 @@ total_investment = int(df['投資成本_數值'].sum())
 total_market_value = int(df['市值_數值'].sum())
 total_profit = int(df['損益'].str.replace(' 元', '').str.replace(',', '').astype(float).sum())
 total_profit_rate = round(total_profit / total_investment * 100, 2) if total_investment != 0 else 0
+
+if os.name == "nt":
+    # Windows 環境
+    font_path = r"C:\Users\11\AppData\Local\Microsoft\Windows\Fonts\NotoSansTC-VariableFont_wght.ttf"
+else:
+    # GitHub Actions / Linux 環境
+    font_path = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
+
+# 透過 FontProperties 載入
+font_prop = fm.FontProperties(fname=font_path)
+plt.rcParams['font.family'] = font_prop.get_name()
+
+
+# 損益率長條圖
+plt.figure(figsize=(10, 6))
+bars = plt.bar(labels, profit_rates, color=['green' if x >= 0 else 'red' for x in profit_rates])
+plt.title(f"{data_date_str} 投資損益率（共 {len(labels)} 檔）", fontproperties=font_prop)
+plt.ylabel("損益率 (%)", fontproperties=font_prop)
+plt.xticks(rotation=45, ha='right', fontproperties=font_prop)
+plt.axhline(0, color='black', linewidth=0.8)
+
+for bar, rate in zip(bars, profit_rates):
+    va = 'bottom' if rate >= 0 else 'top'
+    plt.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), f"{rate:.1f}%", ha='center', va=va, fontproperties=font_prop)
+
+plt.tight_layout()
+plt.savefig("profit_rate_bar.png")
+plt.close()
+
+# 損益區間圓餅圖
+plt.figure(figsize=(6, 6))
+labels_pie = list(cost_by_category.keys())
+sizes_pie = list(cost_by_category.values())
+colors = ['green', 'lime', 'orange', 'red']
+
+plt.pie(sizes_pie, labels=labels_pie, autopct='%1.1f%%', startangle=140, colors=colors,
+        textprops={'fontproperties': font_prop})
+plt.title("投資成本佔比（依損益區間分類）", fontproperties=font_prop)
+plt.axis('equal')
+plt.tight_layout()
+plt.savefig("profit_category_pie.png")
+plt.close()
+
+with open("investment_report.md", "w", encoding="utf-8") as f:
+    f.write(f"# 投資損益報告\n\n")
+    f.write(f"📅 資料日期：{data_date_str}　🕒 產生時間：{run_time_str}\n\n")
+    f.write(f"## 總覽\n")
+    f.write(f"- 💰 總投資金額：{total_investment:,} 元\n")
+    f.write(f"- 📈 市值總額：{total_market_value:,} 元\n")
+    f.write(f"- 🧮 總損益：{total_profit:,} 元\n")
+    f.write(f"- 📊 報酬率：{total_profit_rate:.2f}%\n\n")
+
+    f.write("## 圖表\n")
+    f.write("### 損益率長條圖\n")
+    f.write("![損益率](profit_rate_bar.png)\n\n")
+    f.write("### 損益區間圓餅圖\n")
+    f.write("![損益區間](profit_category_pie.png)\n\n")
+
+    f.write("## 各股明細\n\n")
+    f.write("| 商品名稱 | 股數 | 成本價 | 投資成本 | 帳面收入 | 損益 | 損益率 | 現價 | 市值 |\n")
+    f.write("|----------|------|--------|------------|------------|--------|----------|--------|------------|\n")
+    for _, row in df.iterrows():
+        f.write(f"| {row['商品名稱']} | {row['股數']} | {row['成本價']} | {row['投資成本']} | {row['帳面收入']} | {row['損益']} | {row['損益率']:.2f}% | {row['現價']} | {row['市值']} |\n")
+
 
 # 產生 HTML
 html = f"""<!DOCTYPE html>
