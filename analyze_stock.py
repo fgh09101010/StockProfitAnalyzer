@@ -136,7 +136,7 @@ for bar, rate in zip(bars, profit_rates):
     plt.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), f"{rate:.1f}%", ha='center', va=va, fontproperties=font_prop)
 
 plt.tight_layout()
-plt.savefig("profit_rate_bar.png")
+plt.savefig("docs/profit_rate_bar.png")
 plt.close()
 
 # 損益區間圓餅圖
@@ -150,10 +150,10 @@ plt.pie(sizes_pie, labels=labels_pie, autopct='%1.1f%%', startangle=140, colors=
 plt.title("投資成本佔比（依損益區間分類）", fontproperties=font_prop)
 plt.axis('equal')
 plt.tight_layout()
-plt.savefig("profit_category_pie.png")
+plt.savefig("docs/profit_category_pie.png")
 plt.close()
 
-with open("investment_report.md", "w", encoding="utf-8") as f:
+with open("docs/investment_report.md", "w", encoding="utf-8") as f:
     f.write(f"# 投資損益報告\n\n")
     f.write(f"📅 資料日期：{data_date_str}　🕒 產生時間：{run_time_str}\n\n")
     f.write(f"## 總覽\n")

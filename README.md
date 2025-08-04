@@ -5,7 +5,7 @@
 
 ## 投資損益報告 (Markdown 格式)
 
-完整報告請參考 [investment_report.md](./investment_report.md)。
+完整報告請參考 [investment_report.md](docs/investment_report.md)。
 
 ## 專案概述
 本專案是一個 Python 程式，用於讀取 Excel 檔案中的投資數據，生成視覺化的投資損益分析報告。報告以 HTML 格式呈現，包含互動式圖表、數據表格及投資金額分配模擬功能，幫助使用者快速了解投資組合表現。
