@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 import requests
 from io import BytesIO
+import pytz
 
 # Google Drive 分享連結的檔案 ID
 file_id = "1mVM7IlhmSqe85cghnIWuDfbXmpOEn4Qx"
@@ -21,7 +22,8 @@ max_date = pd.to_datetime(df["資料日期"]).max()
 # 轉換為中文格式
 data_date_str = max_date.strftime("%Y-%m-%d %H:%M:%S")
 
-run_time_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+tz = pytz.timezone('Asia/Taipei')  # UTC+8 時區
+run_time_str = datetime.datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S')
 print(f"資料日期: {data_date_str}\n程式執行時間: {run_time_str}")
 # 去除不要的欄位
 drop_cols = ['試算價', '試算損益']
