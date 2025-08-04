@@ -4,49 +4,25 @@ import os
 import datetime
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
+import requests
+from io import BytesIO
 
-# 讀取 Excel
-file_path = "未實現損益試算.xlsx"
-meta_path = "file_metadata.json"
+# Google Drive 分享連結的檔案 ID
+file_id = "1mVM7IlhmSqe85cghnIWuDfbXmpOEn4Qx"
+download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
 
-# 讀取 Excel
-df = pd.read_excel(file_path, engine='openpyxl')
+# 載入 Excel 檔案
+response = requests.get(download_url)
+excel_data = BytesIO(response.content)
 
-# 初始化 metadata 檔案
-if os.path.exists(meta_path):
-    with open(meta_path, "r", encoding="utf-8") as f:
-        metadata = json.load(f)
-else:
-    metadata = {}
+df = pd.read_excel(excel_data, engine='openpyxl')
 
-# 如果 metadata 裡已經有紀錄，就使用紀錄的日期
-if file_path in metadata:
-    data_date = datetime.datetime.fromisoformat(metadata[file_path])
-else:
-    # 第一次處理：從 Excel 中擷取日期（推薦方式）
-    if "日期" in df.columns:
-        data_date = pd.to_datetime(df['日期']).max()
-    else:
-        # fallback：使用檔案修改時間
-        timestamp = os.path.getmtime(file_path)
-        data_date = datetime.datetime.fromtimestamp(timestamp)
+max_date = pd.to_datetime(df["資料日期"]).max()
+# 轉換為中文格式
+data_date_str = max_date.strftime("%Y-%m-%d %H:%M:%S")
 
-    # 儲存到 metadata
-    metadata[file_path] = data_date.isoformat()
-    with open(meta_path, "w", encoding="utf-8") as f:
-        json.dump(metadata, f, ensure_ascii=False, indent=2)
-
-print("資料日期：", data_date)
-df = pd.read_excel(file_path, engine='openpyxl')
-
-timestamp = os.path.getmtime(file_path)
-
-# 轉換成 datetime 物件
-data_date = datetime.datetime.fromtimestamp(timestamp)
-
-# 格式化成中文日期字串，例如：2025年07月24日
-data_date_str = data_date.strftime('%Y年%m月%d日')
 run_time_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+print(f"資料日期: {data_date_str}\n程式執行時間: {run_time_str}")
 # 去除不要的欄位
 drop_cols = ['試算價', '試算損益']
 for col in drop_cols:
