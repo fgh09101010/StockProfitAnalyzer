@@ -103,7 +103,7 @@ plt.rcParams['font.family'] = font_prop.get_name()
 
 # 損益率長條圖
 plt.figure(figsize=(10, 6))
-bars = plt.bar(labels, profit_rates, color=['green' if x >= 0 else 'red' for x in profit_rates])
+bars = plt.bar(labels, profit_rates, color=['red' if x >= 0 else 'green' for x in profit_rates])
 plt.title(f"{data_date_str} 投資損益率（共 {len(labels)} 檔）", fontproperties=font_prop)
 plt.ylabel("損益率 (%)", fontproperties=font_prop)
 plt.xticks(rotation=45, ha='right', fontproperties=font_prop)
@@ -121,9 +121,8 @@ plt.close()
 plt.figure(figsize=(6, 6))
 labels_pie = list(cost_by_category.keys())
 sizes_pie = list(cost_by_category.values())
-colors = ['green', 'lime', 'orange', 'red']
 
-plt.pie(sizes_pie, labels=labels_pie, autopct='%1.1f%%', startangle=140, colors=colors,
+plt.pie(sizes_pie, labels=labels_pie, autopct='%1.1f%%', startangle=140,
         textprops={'fontproperties': font_prop})
 plt.title("投資成本佔比（依損益區間分類）", fontproperties=font_prop)
 plt.axis('equal')
@@ -203,12 +202,14 @@ with open("docs/investment_report.md", "w", encoding="utf-8") as f:
     f.write("|----------|------|--------|------------|------------|--------|----------|--------|------------|\n")
 
     for _, row in df.iterrows():
-        gain = row['損益']
-        gain_rate = row['損益率']
-        
-        # 判斷顏色
-        color = "red" if gain >= 0 else "green"
-        gain_colored = f"<span style='color:{color}'>{gain:,}</span>"
+        gain_str = row['損益'].replace(',', '').replace('元', '').strip()
+        gain_rate_str = str(row['損益率']).replace('%', '').strip()
+
+        gain = float(gain_str)
+        gain_rate = float(gain_rate_str)
+
+        color = "green" if gain >= 0 else "red"
+        gain_colored = f"<span style='color:{color}'>{gain:,.0f} 元</span>"
         gain_rate_colored = f"<span style='color:{color}'>{gain_rate:.2f}%</span>"
 
         f.write(
