@@ -99,40 +99,53 @@ else:
 # 透過 FontProperties 載入
 font_prop = fm.FontProperties(fname=font_path)
 plt.rcParams['font.family'] = font_prop.get_name()
-
+font_size = 14  # 統一字體大小
 
 # 損益率長條圖
-plt.figure(figsize=(10, 6))
+plt.figure(figsize=(10, 10))
 bars = plt.bar(labels, profit_rates, color=['red' if x >= 0 else 'green' for x in profit_rates])
-plt.title(f"{data_date_str} 投資損益率（共 {len(labels)} 檔）", fontproperties=font_prop)
-plt.ylabel("損益率 (%)", fontproperties=font_prop)
-plt.xticks(rotation=45, ha='right', fontproperties=font_prop)
+plt.title(f"{data_date_str} 投資損益率（共 {len(labels)} 檔）", fontproperties=font_prop, fontsize=font_size + 2)
+plt.ylabel("損益率 (%)", fontproperties=font_prop, fontsize=font_size)
+plt.xticks(rotation=45, ha='right', fontproperties=font_prop, fontsize=font_size)
+plt.yticks(fontsize=font_size)
 plt.axhline(0, color='black', linewidth=0.8)
 
 for bar, rate in zip(bars, profit_rates):
     va = 'bottom' if rate >= 0 else 'top'
-    plt.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), f"{rate:.1f}%", ha='center', va=va, fontproperties=font_prop)
+    plt.text(
+        bar.get_x() + bar.get_width() / 2, 
+        bar.get_height(), 
+        f"{rate:.1f}%", 
+        ha='center', 
+        va=va, 
+        fontproperties=font_prop, 
+        fontsize=font_size-4
+    )
 
 plt.tight_layout()
 plt.savefig("docs/profit_rate_bar.png")
 plt.close()
 
 # 損益區間圓餅圖
-plt.figure(figsize=(6, 6))
+plt.figure(figsize=(10, 10))
 labels_pie = list(cost_by_category.keys())
 sizes_pie = list(cost_by_category.values())
 
-plt.pie(sizes_pie, labels=labels_pie, autopct='%1.1f%%', startangle=140,
-        textprops={'fontproperties': font_prop})
-plt.title("投資成本佔比（依損益區間分類）", fontproperties=font_prop)
+plt.pie(
+    sizes_pie, 
+    labels=labels_pie, 
+    autopct='%1.1f%%', 
+    startangle=140,
+    textprops={'fontproperties': font_prop, 'fontsize': font_size}
+)
+plt.title("投資成本佔比（依損益區間分類）", fontproperties=font_prop, fontsize=font_size + 2)
 plt.axis('equal')
 plt.tight_layout()
 plt.savefig("docs/profit_category_pie.png")
 plt.close()
 
 # 投資成本占比圓環圖
-# 合併小占比項目（< 2%）
-threshold = 2.0  # 占比閾值
+threshold = 2.0  # 小於 2% 合併為其他
 total_cost = sum(investment_costs)
 new_labels = []
 new_costs = []
@@ -144,40 +157,46 @@ for label, cost in zip(labels, investment_costs):
     if percentage < threshold:
         other_cost += cost
     else:
-        new_labels.append(label.split()[0])  # 簡化標籤，取代碼（如 "0050"）
+        new_labels.append(label.split()[0])  # 取前綴代碼簡化
         new_costs.append(cost)
 
 if other_cost > 0:
     new_labels.append(other_label)
     new_costs.append(other_cost)
 
-# 設定顏色（確保與項目數匹配）
 colors = ['green', 'red', 'orange', 'cyan', 'purple', 'blue', 'gray', 'navy', 'pink', 'teal', 'brown'][:len(new_labels)]
 
-# 繪製圓環圖
-plt.figure(figsize=(10, 10))  # 增大尺寸以容納圖例
+plt.figure(figsize=(10, 10))
 wedges, texts, autotexts = plt.pie(
     new_costs, 
-    labels=None,  # 移除圓環上的標籤
-    autopct=lambda pct: f'{pct:.1f}%' if pct >= threshold else '',  # 僅顯示 >= 2% 的百分比
-    startangle=140, 
+    labels=None,
+    autopct=lambda pct: f'{pct:.1f}%' if pct >= threshold else '',
+    startangle=140,
     colors=colors,
-    textprops={'fontproperties': font_prop, 'fontsize': 10},
+    textprops={'fontproperties': font_prop, 'fontsize': font_size},
     pctdistance=0.85
 )
 
-# 繪製圓環圖的中心空白
+# 中心圓形遮罩（圓環）
 centre_circle = plt.Circle((0, 0), 0.70, fc='white')
 fig = plt.gcf()
 fig.gca().add_artist(centre_circle)
 
-# 添加圖例
-plt.legend(wedges, new_labels, title="商品名稱", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1), prop=font_prop)
+# 圖例
+plt.legend(
+    wedges, 
+    new_labels, 
+    title="商品名稱", 
+    loc="center left", 
+    bbox_to_anchor=(1, 0, 0.5, 1),
+    prop=font_prop,
+    fontsize=font_size
+)
 
-plt.title("投資成本占比（依商品分類）", fontproperties=font_prop)
+plt.title("投資成本占比（依商品分類）", fontproperties=font_prop, fontsize=font_size + 2)
 plt.axis('equal')
 plt.tight_layout()
-plt.savefig("docs/investment_cost_doughnut.png", bbox_inches='tight')  # 確保圖例完整儲存
+plt.savefig("docs/investment_cost_doughnut.png", bbox_inches='tight')
 plt.close()
 
 with open("docs/investment_report.md", "w", encoding="utf-8") as f:
