@@ -7,7 +7,7 @@ import matplotlib.font_manager as fm
 import requests
 from io import BytesIO
 import pytz
-
+from matplotlib.font_manager import FontProperties
 # Google Drive 分享連結的檔案 ID
 file_id = "1mVM7IlhmSqe85cghnIWuDfbXmpOEn4Qx"
 download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
@@ -102,9 +102,9 @@ plt.rcParams['font.family'] = font_prop.get_name()
 font_size = 14  # 統一字體大小
 
 # 損益率長條圖
-plt.figure(figsize=(10, 10))
+plt.figure(figsize=(16, 12))
 bars = plt.bar(labels, profit_rates, color=['red' if x >= 0 else 'green' for x in profit_rates])
-plt.title(f"{data_date_str} 投資損益率（共 {len(labels)} 檔）", fontproperties=font_prop, fontsize=font_size + 2)
+plt.title(f"{data_date_str} 投資損益率（共 {len(labels)} 檔）", fontproperties=font_prop, fontsize=font_size * 1.5)
 plt.ylabel("損益率 (%)", fontproperties=font_prop, fontsize=font_size)
 plt.xticks(rotation=45, ha='right', fontproperties=font_prop, fontsize=font_size)
 plt.yticks(fontsize=font_size)
@@ -127,7 +127,7 @@ plt.savefig("docs/profit_rate_bar.png")
 plt.close()
 
 # 損益區間圓餅圖
-plt.figure(figsize=(10, 10))
+plt.figure(figsize=(16, 12))
 labels_pie = list(cost_by_category.keys())
 sizes_pie = list(cost_by_category.values())
 
@@ -138,66 +138,72 @@ plt.pie(
     startangle=140,
     textprops={'fontproperties': font_prop, 'fontsize': font_size}
 )
-plt.title("投資成本佔比（依損益區間分類）", fontproperties=font_prop, fontsize=font_size + 2)
+plt.title("投資成本佔比（依損益區間分類）", fontproperties=font_prop, fontsize=font_size * 3)
 plt.axis('equal')
 plt.tight_layout()
 plt.savefig("docs/profit_category_pie.png")
 plt.close()
 
-# 投資成本占比圓環圖
-threshold = 2.0  # 小於 2% 合併為其他
-total_cost = sum(investment_costs)
+# 市值占比圓環圖（小於 5% 合併為「其他」）
+total_value = sum(market_values)
+threshold_pct = 5  # 小於 5% 合併為其他
+
+# 重新整理 labels 和 values，把小於 threshold 的合併為 "其他"
 new_labels = []
-new_costs = []
-other_cost = 0
-other_label = "其他"
+new_values = []
+other_value = 0
 
-for label, cost in zip(labels, investment_costs):
-    percentage = (cost / total_cost) * 100
-    if percentage < threshold:
-        other_cost += cost
+for label, value in zip(labels, market_values):
+    pct = value / total_value * 100
+    if pct < threshold_pct:
+        other_value += value
     else:
-        new_labels.append(label.split()[0])  # 取前綴代碼簡化
-        new_costs.append(cost)
+        new_labels.append(label)
+        new_values.append(value)
 
-if other_cost > 0:
-    new_labels.append(other_label)
-    new_costs.append(other_cost)
+# 若有其他，加入圖例與數值
+if other_value > 0:
+    new_labels.append("其他")
+    new_values.append(other_value)
 
-colors = ['green', 'red', 'orange', 'cyan', 'purple', 'blue', 'gray', 'navy', 'pink', 'teal', 'brown'][:len(new_labels)]
 
-plt.figure(figsize=(10, 10))
+# 畫圖
+plt.figure(figsize=(16, 12))
 wedges, texts, autotexts = plt.pie(
-    new_costs, 
+    new_values,
     labels=None,
-    autopct=lambda pct: f'{pct:.1f}%' if pct >= threshold else '',
+    autopct=lambda pct: f'{pct:.1f}%' if pct > 0 else '',
     startangle=140,
-    colors=colors,
-    textprops={'fontproperties': font_prop, 'fontsize': font_size},
-    pctdistance=0.85
+    colors=plt.cm.tab20.colors[:len(new_labels)],
+    textprops={'fontproperties': font_prop, 'fontsize': font_size * 1.5},
+    pctdistance=0.75
 )
 
 # 中心圓形遮罩（圓環）
-centre_circle = plt.Circle((0, 0), 0.70, fc='white')
+centre_circle = plt.Circle((0, 0), 0.60, fc='white')
 fig = plt.gcf()
 fig.gca().add_artist(centre_circle)
 
-# 圖例
-plt.legend(
-    wedges, 
-    new_labels, 
-    title="商品名稱", 
-    loc="center left", 
-    bbox_to_anchor=(1, 0, 0.5, 1),
-    prop=font_prop,
-    fontsize=font_size
-)
+legend_font = FontProperties(fname=font_path, size=font_size*1.3)  # 或你想要的倍數
 
-plt.title("投資成本占比（依商品分類）", fontproperties=font_prop, fontsize=font_size + 2)
+legend = plt.legend(
+    wedges,
+    new_labels,
+    title="商品名稱",
+    loc="center left",
+    bbox_to_anchor=(0.9, 0.5),
+    prop=legend_font
+)
+legend.get_title().set_fontsize(font_size*1.3)  # 圖例標題大小也可放大
+
+# 圖標題
+plt.title("市值占比（依商品分類）", fontproperties=font_prop, fontsize=font_size * 3)
 plt.axis('equal')
-plt.tight_layout()
-plt.savefig("docs/investment_cost_doughnut.png", bbox_inches='tight')
+
+# 儲存圖檔，不使用 tight
+plt.savefig("docs/market_value_doughnut.png", dpi=300)
 plt.close()
+
 
 with open("docs/investment_report.md", "w", encoding="utf-8") as f:
     f.write(f"# 投資損益報告\n\n")
@@ -213,8 +219,8 @@ with open("docs/investment_report.md", "w", encoding="utf-8") as f:
     f.write("![損益率](profit_rate_bar.png)\n\n")
     f.write("### 損益區間圓餅圖\n")
     f.write("![損益區間](profit_category_pie.png)\n\n")
-    f.write("### 投資成本占比圓環圖\n")
-    f.write("![投資成本占比](investment_cost_doughnut.png)\n\n")
+    f.write("### 市值占比圓環圖\n")
+    f.write("![市值占比](market_value_doughnut.png)\n\n")
 
     f.write("## 各股明細\n\n")
     f.write("| 商品名稱 | 股數 | 成本價 | 投資成本 | 帳面收入 | 損益 | 損益率 | 現價 | 市值 |\n")
