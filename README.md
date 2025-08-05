@@ -4,7 +4,7 @@
 ![BTC](docs/image/btc-bitcoin.gif)
 ![上漲](docs/image/up-higher.gif)
 ## 在線預覽
-- 報告範例：[投資損益分析報告](./StockProfitAnalyzer/投資損益分析報告.html)
+- 報告範例：[投資損益分析報告](https://fgh09101010.github.io/StockProfitAnalyzer/%E6%8A%95%E8%B3%87%E6%90%8D%E7%9B%8A%E5%88%86%E6%9E%90%E5%A0%B1%E5%91%8A.html)
 
 ## 投資損益報告 (Markdown 格式)
 
@@ -57,3 +57,4 @@
 
 ## 授權
 本專案僅供學習與個人使用，請勿用於商業用途。
+
