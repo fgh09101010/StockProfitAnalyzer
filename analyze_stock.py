@@ -91,7 +91,7 @@ total_profit_rate = round(total_profit / total_investment * 100, 2) if total_inv
 
 if os.name == "nt":
     # Windows 環境
-    font_path = r"C:\Users\11\AppData\Local\Microsoft\Windows\Fonts\NotoSansTC-VariableFont_wght.ttf"
+    font_path = r"C:\Windows\Fonts\msyh.ttc"  # Microsoft YaHei 字型檔案
 else:
     # GitHub Actions / Linux 環境
     font_path = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
@@ -131,6 +131,56 @@ plt.tight_layout()
 plt.savefig("docs/profit_category_pie.png")
 plt.close()
 
+# 投資成本占比圓環圖
+# 合併小占比項目（< 2%）
+threshold = 2.0  # 占比閾值
+total_cost = sum(investment_costs)
+new_labels = []
+new_costs = []
+other_cost = 0
+other_label = "其他"
+
+for label, cost in zip(labels, investment_costs):
+    percentage = (cost / total_cost) * 100
+    if percentage < threshold:
+        other_cost += cost
+    else:
+        new_labels.append(label.split()[0])  # 簡化標籤，取代碼（如 "0050"）
+        new_costs.append(cost)
+
+if other_cost > 0:
+    new_labels.append(other_label)
+    new_costs.append(other_cost)
+
+# 設定顏色（確保與項目數匹配）
+colors = ['green', 'red', 'orange', 'cyan', 'purple', 'blue', 'gray', 'navy', 'pink', 'teal', 'brown'][:len(new_labels)]
+
+# 繪製圓環圖
+plt.figure(figsize=(10, 10))  # 增大尺寸以容納圖例
+wedges, texts, autotexts = plt.pie(
+    new_costs, 
+    labels=None,  # 移除圓環上的標籤
+    autopct=lambda pct: f'{pct:.1f}%' if pct >= threshold else '',  # 僅顯示 >= 2% 的百分比
+    startangle=140, 
+    colors=colors,
+    textprops={'fontproperties': font_prop, 'fontsize': 10},
+    pctdistance=0.85
+)
+
+# 繪製圓環圖的中心空白
+centre_circle = plt.Circle((0, 0), 0.70, fc='white')
+fig = plt.gcf()
+fig.gca().add_artist(centre_circle)
+
+# 添加圖例
+plt.legend(wedges, new_labels, title="商品名稱", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1), prop=font_prop)
+
+plt.title("投資成本占比（依商品分類）", fontproperties=font_prop)
+plt.axis('equal')
+plt.tight_layout()
+plt.savefig("docs/investment_cost_doughnut.png", bbox_inches='tight')  # 確保圖例完整儲存
+plt.close()
+
 with open("docs/investment_report.md", "w", encoding="utf-8") as f:
     f.write(f"# 投資損益報告\n\n")
     f.write(f"📅 資料日期：{data_date_str}　🕒 產生時間：{run_time_str}\n\n")
@@ -145,6 +195,8 @@ with open("docs/investment_report.md", "w", encoding="utf-8") as f:
     f.write("![損益率](profit_rate_bar.png)\n\n")
     f.write("### 損益區間圓餅圖\n")
     f.write("![損益區間](profit_category_pie.png)\n\n")
+    f.write("### 投資成本占比圓環圖\n")
+    f.write("![投資成本占比](investment_cost_doughnut.png)\n\n")
 
     f.write("## 各股明細\n\n")
     f.write("| 商品名稱 | 股數 | 成本價 | 投資成本 | 帳面收入 | 損益 | 損益率 | 現價 | 市值 |\n")
