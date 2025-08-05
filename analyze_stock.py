@@ -201,9 +201,20 @@ with open("docs/investment_report.md", "w", encoding="utf-8") as f:
     f.write("## 各股明細\n\n")
     f.write("| 商品名稱 | 股數 | 成本價 | 投資成本 | 帳面收入 | 損益 | 損益率 | 現價 | 市值 |\n")
     f.write("|----------|------|--------|------------|------------|--------|----------|--------|------------|\n")
-    for _, row in df.iterrows():
-        f.write(f"| {row['商品名稱']} | {row['股數']} | {row['成本價']} | {row['投資成本']} | {row['帳面收入']} | {row['損益']} | {row['損益率']:.2f}% | {row['現價']} | {row['市值']} |\n")
 
+    for _, row in df.iterrows():
+        gain = row['損益']
+        gain_rate = row['損益率']
+        
+        # 判斷顏色
+        color = "red" if gain >= 0 else "green"
+        gain_colored = f"<span style='color:{color}'>{gain:,}</span>"
+        gain_rate_colored = f"<span style='color:{color}'>{gain_rate:.2f}%</span>"
+
+        f.write(
+            f"| {row['商品名稱']} | {row['股數']} | {row['成本價']} | {row['投資成本']} | "
+            f"{row['帳面收入']} | {gain_colored} | {gain_rate_colored} | {row['現價']} | {row['市值']} |\n"
+        )
 
 # 產生 HTML
 html = f"""<!DOCTYPE html>
