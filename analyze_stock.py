@@ -136,7 +136,7 @@ plt.pie(
     labels=labels_pie, 
     autopct='%1.1f%%', 
     startangle=140,
-    textprops={'fontproperties': font_prop, 'fontsize': font_size}
+    textprops={'fontproperties': font_prop, 'fontsize': font_size*1.5}
 )
 plt.title("投資成本佔比（依損益區間分類）", fontproperties=font_prop, fontsize=font_size * 3)
 plt.axis('equal')
