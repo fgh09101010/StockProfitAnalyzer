@@ -1,10 +1,19 @@
 # 投資損益分析報告生成器
-![Giphy 範例](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaWlpa2s5am1kNzIwZzhzcGx2OG9sNnV6aGEzeDJ6M3Zsc3Vnb3RheSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/jAoMf14h0ZQQw/giphy.gif)
-![GIF 1](docs/image/1745274567786.gif)
-![BTC](docs/image/btc-bitcoin.gif)
-![上漲](docs/image/up-higher.gif)
+<div style="text-align:center;">
+  <div style="margin-bottom:10px;">
+    <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaWlpa2s5am1kNzIwZzhzcGx2OG9sNnV6aGEzeDJ6M3Zsc3Vnb3RheSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/jAoMf14h0ZQQw/giphy.gif" alt="Giphy" width="450" style="display:block; margin: 0 auto;" />
+  </div>
+  <div>
+    <img src="docs/image/1745274567786.gif" alt="GIF 1" width="150" style="display:inline-block; margin-right:5px;" />
+    <img src="docs/image/btc-bitcoin.gif" alt="BTC" width="150" style="display:inline-block; margin-right:5px;" />
+    <img src="docs/image/up-higher.gif" alt="上漲" width="150" style="display:inline-block;" />
+  </div>
+</div>
+
+
+
 ## 在線預覽
-- 報告範例：[投資損益分析報告](./StockProfitAnalyzer/投資損益分析報告.html)
+- 報告範例：[投資損益分析報告](https://fgh09101010.github.io/StockProfitAnalyzer/%E6%8A%95%E8%B3%87%E6%90%8D%E7%9B%8A%E5%88%86%E6%9E%90%E5%A0%B1%E5%91%8A.html)
 
 ## 投資損益報告 (Markdown 格式)
 
@@ -57,3 +66,5 @@
 
 ## 授權
 本專案僅供學習與個人使用，請勿用於商業用途。
+
+
