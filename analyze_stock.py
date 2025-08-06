@@ -8,8 +8,17 @@ import requests
 from io import BytesIO
 import pytz
 from matplotlib.font_manager import FontProperties
+import dotenv
+
+# 嘗試讀取本地 .env 檔案（本地開發用）
+dotenv.load_dotenv()
+
+# 優先使用環境變數（GitHub Actions 設定 Secrets）
+file_id = os.getenv("GDRIVE_FILE_ID")
+if not file_id:
+    raise ValueError("Missing GDRIVE_FILE_ID environment variable")
+
 # Google Drive 分享連結的檔案 ID
-file_id = "1mVM7IlhmSqe85cghnIWuDfbXmpOEn4Qx"
 download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
 
 # 載入 Excel 檔案
