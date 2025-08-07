@@ -1,4 +1,4 @@
-# 投資損益分析報告生成器
+# 投資損益分析報告生成器(資料皆為虛構資料)
 <div style="text-align:center;">
   <div style="margin-bottom:10px;">
     <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaWlpa2s5am1kNzIwZzhzcGx2OG9sNnV6aGEzeDJ6M3Zsc3Vnb3RheSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/jAoMf14h0ZQQw/giphy.gif" alt="Giphy" width="450" style="display:block; margin: 0 auto;" />

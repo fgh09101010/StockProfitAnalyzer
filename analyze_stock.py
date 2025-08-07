@@ -111,24 +111,66 @@ plt.rcParams['font.family'] = font_prop.get_name()
 font_size = 14  # 統一字體大小
 
 # 損益率長條圖
+# 合併小於 5% 市值為「其他」
+threshold_pct = 5
+total_value = sum(market_values)
+
+# 準備新的結構
+new_labels = []
+new_profit_rates = []
+other_value = 0
+other_weighted_profit = 0
+
+for label, rate, value in zip(labels, profit_rates, market_values):
+    pct = value / total_value * 100
+    if pct < threshold_pct:
+        other_value += value
+        other_weighted_profit += rate * value
+    else:
+        new_labels.append(label)
+        new_profit_rates.append(rate)
+
+# 加入「其他」
+if other_value > 0:
+    other_avg_rate = other_weighted_profit / other_value if other_value > 0 else 0
+    new_labels.append("其他")
+    new_profit_rates.append(round(other_avg_rate, 2))
+
+# 畫圖
 plt.figure(figsize=(16, 12))
-bars = plt.bar(labels, profit_rates, color=['red' if x >= 0 else 'green' for x in profit_rates])
-plt.title(f"{data_date_str} 投資損益率（共 {len(labels)} 檔）", fontproperties=font_prop, fontsize=font_size * 1.5)
-plt.ylabel("損益率 (%)", fontproperties=font_prop, fontsize=font_size)
-plt.xticks(rotation=45, ha='right', fontproperties=font_prop, fontsize=font_size)
-plt.yticks(fontsize=font_size)
+bars = plt.bar(
+    new_labels,
+    new_profit_rates,
+    color=['red' if x >= 0 else 'green' for x in new_profit_rates]
+)
+
+plt.title(
+    f"{data_date_str} 投資損益率（共 {len(labels)} 檔）",
+    fontproperties=font_prop,
+    fontsize=font_size * 1.5
+)
+plt.ylabel("損益率 (%)", fontproperties=font_prop, fontsize=font_size * 1.5)
+plt.xticks(rotation=45, ha='right', fontproperties=font_prop, fontsize=font_size * 1.2)
+plt.yticks(fontsize=font_size * 1.2)
 plt.axhline(0, color='black', linewidth=0.8)
 
-for bar, rate in zip(bars, profit_rates):
+# 自動調整 y 軸範圍，避免文字超出
+max_y = max(new_profit_rates + [0])
+min_y = min(new_profit_rates + [0])
+plt.ylim(bottom=min_y - 10, top=max_y + 10)
+
+# 顯示損益率數字
+for bar, rate in zip(bars, new_profit_rates):
     va = 'bottom' if rate >= 0 else 'top'
+    y_pos = bar.get_height() + 1 if rate >= 0 else bar.get_height() - 1
     plt.text(
-        bar.get_x() + bar.get_width() / 2, 
-        bar.get_height(), 
-        f"{rate:.1f}%", 
-        ha='center', 
-        va=va, 
-        fontproperties=font_prop, 
-        fontsize=font_size-4
+        bar.get_x() + bar.get_width() / 2,
+        y_pos,
+        f"{rate:.1f}%",
+        ha='center',
+        va=va,
+        fontproperties=font_prop,
+        fontsize=font_size * 1.3
     )
 
 plt.tight_layout()
