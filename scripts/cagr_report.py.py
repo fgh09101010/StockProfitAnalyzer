@@ -5,13 +5,14 @@ from datetime import datetime, timedelta
 
 tickers = {
     "2330": "2330.TW",
+    "2539": "2539.TW",
     "0050": "0050.TW",
     "加權指數": "^TWII",
     "S&P500": "^GSPC",
     "NASDAQ": "^IXIC"
 }
 
-periods = [5, 10, 20]
+periods = [5, 10, 15, 20]
 end_date = datetime.today()
 
 results = {p: {} for p in periods}
