@@ -12,7 +12,7 @@ tickers = {
     "NASDAQ": "^IXIC"
 }
 
-periods = [5, 10, 15, 20]
+periods = [5, 10, 15, 20, 25, 30 ,35]
 end_date = datetime.today()
 
 results = {p: {} for p in periods}
